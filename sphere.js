@@ -1,9 +1,10 @@
 class Sphere {
 
-    constructor(center, radius, colour) {
+    constructor(center, radius, colour, specular) {
         this.center = center;
         this.radius = radius;
         this.colour = color(colour);
+        this.specular = specular;
     }
 
     intersect(O, D) {

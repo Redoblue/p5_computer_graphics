@@ -11,10 +11,10 @@ function setup() {
     createCanvas(500, 500);
 
     spheres = [
-        new Sphere([0, -1, 3], 1, [255, 0, 0, 255]),
-        new Sphere([2, 0, 4], 1, [0, 0, 255, 255]),
-        new Sphere([-2, 0, 4], 1, [0, 255, 0, 255]),
-        new Sphere([0, -5001, 0], 5000, [255, 255, 0, 255])
+        new Sphere([0, -1, 3], 1, [255, 0, 0, 255], 500),
+        new Sphere([2, 0, 4], 1, [0, 0, 255, 255], 500),
+        new Sphere([-2, 0, 4], 1, [0, 255, 0, 255], 10),
+        new Sphere([0, -5001, 0], 5000, [255, 255, 0, 255], 1000)
     ]
     lights = [
         new AmbientLight([255, 255, 255, 255], 0.2),
@@ -71,10 +71,10 @@ function trace_ray(origin, direction, t_min, t_max) {
 
     let point = pAdd(origin, direction.mult(closest_t).array()); // P = O + tD
     let normal = toVector(pSub(point, closest_sphere.center)).normalize(); // N = (P - C) / |P - C|
-    return colorMult(closest_sphere.colour, compute_lighting(point, normal));
+    return colorMult(closest_sphere.colour, compute_lighting(point, normal, direction.mult(-1), closest_sphere.specular));
 }
 
-function compute_lighting(point, normal) {
+function compute_lighting(point, normal, view_direction, specular) {
     let i = 0.0;
     for (let light of lights) {
         if (light instanceof AmbientLight) {
@@ -87,9 +87,20 @@ function compute_lighting(point, normal) {
                 vec_l = light.direction;
             }
             vec_l.normalize();
+
+            // 漫反射
             n_dot_l = normal.dot(vec_l);
             if (n_dot_l > 0) {
                 i += light.intensity * n_dot_l;
+            }
+
+            // 鏡面反射
+            if (specular > 0) {
+                let vec_r = normal.mult(2 * n_dot_l).sub(vec_l);
+                let r_dot_v = vec_r.dot(view_direction);
+                if (r_dot_v > 0) {
+                    i += light.intensity * Math.pow(r_dot_v / (vec_r.mag() * view_direction.mag()), specular);
+                }
             }
         }
     }
