@@ -6,9 +6,8 @@ class Sphere {
         this.colour = color(colour);
     }
 
-    intersect(O, V) {
-        let CO = toVector(sub2(O, this.center));
-        let D = toVector(sub2(V, O));
+    intersect(O, D) {
+        let CO = toVector(pSub(O, this.center));
 
         let a = D.dot(D);
         let b = 2 * D.dot(CO);
@@ -16,7 +15,7 @@ class Sphere {
 
         let discriminant = b * b - 4 * a * c;
         if (discriminant < 0) {
-            return [inf, inf];
+            return [Infinity, Infinity];
         }
 
         let t1 = (-b + Math.sqrt(discriminant)) / (2 * a);
